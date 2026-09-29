@@ -1,0 +1,158 @@
+/**
+ * SIH26074 - Panchayat-Level Weather App
+ * CSS Tokens: Design variables for Light (Frosted Glass) and Dark (Deep Dark) themes
+ */
+
+:root {
+  /* Typography */
+  --font-stack: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans Devanagari", sans-serif;
+  
+  /* Shared Functional Accents */
+  --accent-cyan: #38bdf8;
+  --accent-green: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  
+  /* Transitions */
+  --theme-transition-duration: 0.4s;
+  --screen-transition-duration: 0.3s;
+  --sky-transition-duration: 0.6s;
+}
+
+html[lang="hi"] {
+  --font-stack: "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+}
+
+/* ==========================================================================
+   LIGHT THEME: Concept 1 "Frosted Glass" (iOS Weather Style)
+   Translucent cards, strong blur, thin light borders, soft ambient shadows
+   ========================================================================== */
+html[data-theme="light"] {
+  --theme-name: "Frosted Glass";
+  
+  /* Surface Cards */
+  --card-bg: rgba(255, 255, 255, 0.19);
+  --card-backdrop-filter: blur(22px) saturate(180%);
+  --card-border: 1px solid rgba(255, 255, 255, 0.28);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --card-radius: 22px;
+  
+  /* Typography with high contrast */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.78);
+  
+  /* FIXED: Clear and strong contrast for rain % in light frosted mode */
+  --text-pop: #38bdf8;
+  --text-pop-bg: rgba(2, 132, 199, 0.25);
+  --text-pop-border: rgba(56, 189, 248, 0.45);
+  --text-temp-low: rgba(255, 255, 255, 0.82); /* Clear 5-day low temp */
+  
+  /* Key Feature: "Block vs Your Panchayat" */
+  --feature-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(56, 189, 248, 0.18) 100%);
+  --feature-backdrop-filter: blur(24px) saturate(180%);
+  --feature-border: 1px solid rgba(56, 189, 248, 0.5);
+  --feature-glow: 0 0 24px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --feature-comp-bg: rgba(0, 0, 0, 0.18);
+  --feature-badge-bg: rgba(56, 189, 248, 0.28);
+  --feature-badge-border: rgba(56, 189, 248, 0.45);
+  --feature-temp-diff: #10b981;
+  
+  /* Bottom Navigation Dock */
+  --nav-bg: rgba(10, 16, 28, 0.58);
+  --nav-backdrop-filter: blur(24px) saturate(180%);
+  --nav-border: 1px solid rgba(255, 255, 255, 0.2);
+  --nav-text: rgba(255, 255, 255, 0.65);
+  --nav-text-active: #ffffff;
+  --nav-item-active-bg: rgba(255, 255, 255, 0.14);
+  
+  /* Farm Advice */
+  --advice-border: #34d399;
+  --advice-badge-bg: rgba(52, 211, 153, 0.22);
+  --advice-badge-border: rgba(52, 211, 153, 0.38);
+  --advice-badge-color: #a7f3d0;
+  
+  /* Range bar track */
+  --range-bar-track: rgba(0, 0, 0, 0.25);
+  
+  /* Segmented control (Profile) */
+  --segment-bg: rgba(0, 0, 0, 0.22);
+  --segment-border: 1px solid rgba(255, 255, 255, 0.2);
+  --segment-active-bg: rgba(255, 255, 255, 0.25);
+  --segment-active-text: #ffffff;
+}
+
+/* ==========================================================================
+   DARK THEME: Concept 4 "Deep Dark"
+   Minimal obsidian matte cards, glass ONLY on Key Feature & Bottom Nav
+   ========================================================================== */
+html[data-theme="dark"] {
+  --theme-name: "Deep Dark";
+  
+  /* Surface Cards (Matte, No Blur for Battery/Contrast) */
+  --card-bg: rgba(13, 17, 26, 0.94);
+  --card-backdrop-filter: none;
+  --card-border: 1px solid rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --card-radius: 20px;
+  
+  /* Typography */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.78);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-pop: #38bdf8;
+  --text-pop-bg: rgba(56, 189, 248, 0.16);
+  --text-pop-border: rgba(56, 189, 248, 0.35);
+  --text-temp-low: rgba(255, 255, 255, 0.68);
+  
+  /* Key Feature: Standout Frosted Glass Jewel ONLY HERE */
+  --feature-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.45) 0%, rgba(6, 95, 70, 0.42) 100%);
+  --feature-backdrop-filter: blur(24px) saturate(200%);
+  --feature-border: 1px solid rgba(56, 189, 248, 0.55);
+  --feature-glow: 0 0 30px rgba(56, 189, 248, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  --feature-comp-bg: rgba(0, 0, 0, 0.4);
+  --feature-badge-bg: rgba(56, 189, 248, 0.25);
+  --feature-badge-border: rgba(56, 189, 248, 0.5);
+  --feature-temp-diff: #10b981;
+  
+  /* Bottom Navigation Dock (Frosted Glass Dock) */
+  --nav-bg: rgba(13, 17, 26, 0.76);
+  --nav-backdrop-filter: blur(20px) saturate(180%);
+  --nav-border: 1px solid rgba(255, 255, 255, 0.12);
+  --nav-text: rgba(255, 255, 255, 0.65);
+  --nav-text-active: #38bdf8;
+  --nav-item-active-bg: rgba(56, 189, 248, 0.14);
+  
+  /* Farm Advice */
+  --advice-border: #10b981;
+  --advice-badge-bg: rgba(16, 185, 129, 0.15);
+  --advice-badge-border: rgba(16, 185, 129, 0.35);
+  --advice-badge-color: #a7f3d0;
+  
+  /* Range bar track */
+  --range-bar-track: rgba(255, 255, 255, 0.1);
+  
+  /* Segmented control (Profile) */
+  --segment-bg: rgba(10, 14, 23, 0.85);
+  --segment-border: 1px solid rgba(255, 255, 255, 0.12);
+  --segment-active-bg: #2563eb;
+  --segment-active-text: #ffffff;
+}
+
+/* Smooth theme transition rule across all token-consuming elements */
+.weather-card,
+.feature-card,
+.bottom-nav-bar,
+.segmented-btn,
+.segmented-control,
+.metric-card,
+.hourly-scroll-track,
+.daily-row,
+.nav-item {
+  transition: background var(--theme-transition-duration) ease,
+              border-color var(--theme-transition-duration) ease,
+              color var(--theme-transition-duration) ease,
+              box-shadow var(--theme-transition-duration) ease,
+              backdrop-filter var(--theme-transition-duration) ease,
+              -webkit-backdrop-filter var(--theme-transition-duration) ease;
+}

@@ -1,0 +1,234 @@
+{
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "advice": "Farm Advice",
+    "profile": "Settings"
+  },
+  "lang_modal": {
+    "title": "Choose Language",
+    "subtitle": "Select your preferred language for the forecast",
+    "en_title": "English",
+    "en_desc": "Continue in English",
+    "hi_title": "हिन्दी",
+    "hi_desc": "हिन्दी में जारी रखें"
+  },
+  "login": {
+    "title": "GramMausam",
+    "tagline": "Hyperlocal Weather for Rural India",
+    "privacy": "Privacy Policy"
+  },
+  "home": {
+    "location_prompt": "Tap to select Gram Panchayat",
+    "location_subtitle": "{block}, Surguja • {status}",
+    "connecting": "Connecting...",
+    "updating": "Updating forecast...",
+    "updated_at": "Updated {time}",
+    "offline_badge": "OFFLINE",
+    "loading_weather": "Loading weather...",
+    "connection_failed": "Connection failed",
+    "high_low": "H: {high}° • L: {low}°",
+    "hourly_title": "Hourly Forecast (12 Hours)",
+    "now": "Now",
+    "daily_title": "5-Day Forecast",
+    "today": "Today"
+  },
+  "metrics": {
+    "humidity": "Humidity",
+    "dew_point": "Dew point {temp}° • Block forecast",
+    "calculating_dew_point": "Calculating dew point...",
+    "wind": "Wind",
+    "wind_station": "{compass} • Block weather station",
+    "chance_of_rain": "Chance of rain",
+    "rain_sub": "Today's max probability",
+    "rainfall": "Rainfall",
+    "rainfall_sub": "Today's precipitation sum",
+    "kmh": "km/h",
+    "mm": "mm"
+  },
+  "compass": {
+    "N": "N",
+    "NNE": "NNE",
+    "NE": "NE",
+    "ENE": "ENE",
+    "E": "E",
+    "ESE": "ESE",
+    "SE": "SE",
+    "SSE": "SSE",
+    "S": "S",
+    "SSW": "SSW",
+    "SW": "SW",
+    "WSW": "WSW",
+    "W": "W",
+    "WNW": "WNW",
+    "NW": "NW",
+    "NNW": "NNW"
+  },
+  "feature": {
+    "badge": "Micro-local Difference",
+    "header": "Block vs Your Panchayat",
+    "block_label": "Block Forecast (Grid)",
+    "grid_msl": "Grid: {elevation} m MSL",
+    "elevation_label": "Elevation: {elevation} m",
+    "diff_cooler": "-{diff}° cooler",
+    "diff_warmer": "+{diff}° warmer",
+    "diff_same": "±0° same",
+    "elevation_vs_grid": "Elevation: {diff} m vs forecast grid average ({grid} m)",
+    "rain_wind_note": "Rain, humidity and wind: block forecast",
+    "loading_diff": "Loading local elevation difference..."
+  },
+  "downscale": {
+    "cooler": "{diff}° cooler than the block forecast because this panchayat is {elev} m higher than the forecast grid average.",
+    "warmer": "{diff}° warmer than the block forecast because this panchayat is {elev} m lower than the forecast grid average.",
+    "similar": "Similar temperature to the block forecast as elevation ({pan} m) is near the forecast grid average ({grid} m)."
+  },
+  "home_advice": {
+    "badge": "Farm Advice",
+    "header": "Agricultural Advisory",
+    "loading": "Loading weather-based farming advisory...",
+    "view_all": "View All 3-Day Advisories"
+  },
+  "advice_screen": {
+    "title": "Farm Advice",
+    "subtitle": "3-Day Agromet Advisory for {panchayat} • Mainpat Block"
+  },
+  "advisory": {
+    "spray_rain": {
+      "title": "Do Not Spray Pesticides or Fertiliser",
+      "reason": "{pop}% rain probability in next 24 hours",
+      "text": "Rain probability is 60% or higher within the next 24 hours. Rain will wash away applied chemicals into drainage, wasting inputs. Postpone spraying until skies clear."
+    },
+    "skip_irrigation": {
+      "title": "Skip Field Irrigation",
+      "reason": "{rain} mm total rainfall expected over next 2 days",
+      "text": "Substantial precipitation ({rain} mm) is forecast over the next 48 hours. Withhold canal or tubewell irrigation to prevent root waterlogging and soil nutrient leaching."
+    },
+    "high_wind": {
+      "title": "High Wind Alert: Avoid Chemical Spraying",
+      "reason": "Wind gusts reaching {speed} km/h",
+      "text": "Strong winds above 30 km/h cause severe droplet drift, reducing pesticide efficacy and endangering adjacent crops. Carry out foliar applications only during early morning calm hours."
+    },
+    "heat_stress": {
+      "title": "Heat Stress Alert: Evening Irrigation Needed",
+      "reason": "Maximum temperature hitting {temp}°C",
+      "text": "Extreme heat condition ({temp}°C) can cause flower drop and stunted vegetative growth. Irrigate crops during evening hours to maintain rhizosphere moisture, and shade young saplings."
+    },
+    "frost_risk": {
+      "title": "Frost Warning",
+      "reason": "Night temperature falling to {temp}°C",
+      "text": "Near-freezing nighttime minimum ({temp}°C) creates severe frost risk for winter crops like potato, tomato, and mustard. Provide light evening irrigation and cover delicate nursery beds with straw or polythene."
+    },
+    "favorable_weather": {
+      "title": "Good Conditions for Normal Field Work",
+      "reason": "Moderate temperatures, low wind & steady conditions",
+      "text": "Weather parameters remain favorable over the next 3 days. Proceed with scheduled weeding, fertilizer dressing, intercultural operations, and crop harvesting."
+    }
+  },
+  "profile": {
+    "title": "App Settings",
+    "subtitle": "Preferences & Appearance",
+    "language_title": "Language",
+    "language_desc": "Select app language",
+    "lang_en": "English",
+    "lang_hi": "हिन्दी",
+    "theme_title": "Display Theme",
+    "theme_desc": "Choose between automatic, light, or dark display mode",
+    "theme_auto": "Auto",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_help_auto": "• Auto: Matches your phone's dark mode setting.",
+    "theme_help_light": "• Light: Clean light theme with translucent blur.",
+    "theme_help_dark": "• Dark: Dark theme with battery-saving matte.",
+    "app_details_title": "Application Details",
+    "pilot_block_label": "Active Pilot Block",
+    "pilot_block_val": "Mainpat Block",
+    "district_state_label": "District & State",
+    "district_state_val": "Surguja, Chhattisgarh",
+    "covered_panchayats_label": "Covered Panchayats",
+    "covered_panchayats_val": "37 Gram Panchayats",
+    "engine_label": "Forecast Engine",
+    "engine_val": "Open-Meteo Live API (Raw Grid)",
+    "lapse_rate_label": "Elevation correction (6.5 °C per 1,000 m)",
+    "lapse_rate_val": "Adiabatic Lapse Rate (-0.0065°C/m)",
+    "account_title": "Google Account",
+    "privacy_link": "Privacy Policy",
+    "logout": "Log out"
+  },
+  "sheet": {
+    "title": "Select Gram Panchayat",
+    "subtitle": "37 Pilot Places",
+    "search_placeholder": "Search panchayat (e.g. Pathrai)...",
+    "use_location": "Use my location (Nearest Panchayat)",
+    "finding_location": "Finding nearest panchayat...",
+    "no_results": "No Gram Panchayat found matching \"{query}\".",
+    "try_search": "Try searching another name",
+    "elevation_msl": "{elevation} m MSL",
+    "distance_from_hq": "{distance} km from block HQ",
+    "high_conf": "HIGH",
+    "medium_conf": "MEDIUM"
+  },
+  "map": {
+    "toggle_zones": "Temperature zones",
+    "legend_title": "Station Temperatures",
+    "legend_cool": "Cool ({temp}°)",
+    "legend_warm": "Warm ({temp}°)",
+    "legend_high": "HIGH",
+    "legend_medium": "MEDIUM",
+    "legend_note": "Zones estimated from elevation",
+    "block_title": "Mainpat Block Centre",
+    "block_badge": "BLOCK HQ",
+    "block_metric_forecast": "Block Grid",
+    "block_metric_msl": "Grid MSL",
+    "block_metric_centre": "Centre",
+    "block_desc": "Raw coarse Open-Meteo forecast point",
+    "panchayat_metric_forecast": "Forecast",
+    "panchayat_metric_elevation": "Elevation",
+    "panchayat_metric_hq": "From HQ",
+    "panchayat_view_forecast": "View forecast →"
+  },
+  "wmo": {
+    "0": "Clear Sky",
+    "1": "Mainly Clear",
+    "2": "Partly Cloudy",
+    "3": "Overcast",
+    "45": "Foggy",
+    "48": "Depositing Rime Fog",
+    "51": "Light Drizzle",
+    "53": "Moderate Drizzle",
+    "55": "Dense Drizzle",
+    "56": "Freezing Drizzle",
+    "57": "Heavy Freezing Drizzle",
+    "61": "Slight Rain",
+    "63": "Moderate Rain",
+    "65": "Heavy Rain",
+    "66": "Freezing Rain",
+    "67": "Heavy Freezing Rain",
+    "71": "Slight Snow",
+    "73": "Moderate Snow",
+    "75": "Heavy Snow",
+    "77": "Snow Grains",
+    "80": "Slight Showers",
+    "81": "Moderate Showers",
+    "82": "Violent Showers",
+    "85": "Snow Showers",
+    "86": "Heavy Snow Showers",
+    "95": "Thunderstorm",
+    "96": "Thunderstorm with Hail",
+    "99": "Severe Thunderstorm with Hail"
+  },
+  "errors": {
+    "unable_to_load": "Unable to Load Weather",
+    "network_desc": "Could not connect to the Open-Meteo forecast service. Please check your internet connection.",
+    "retry": "🔄 Try Again"
+  },
+  "toasts": {
+    "geo_unsupported": "Geolocation is not supported by your browser.",
+    "geo_outside": "You are outside the pilot area (Mainpat block). Showing the nearest panchayat.",
+    "geo_nearest": "Found nearest: {name} ({distance} km away)",
+    "geo_denied": "Location permission denied. Please select from the list.",
+    "geo_error": "Could not access location."
+  },
+  "footer": {
+    "text": "Weather data: Open-Meteo.com (CC BY 4.0) • Panchayat names: digitalchhattisgarh.com"
+  }
+}

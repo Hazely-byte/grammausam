@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" id="theme-color-meta" content="#1b62a5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GramMausam</title>
+  <meta name="description" content="Hyper-local elevation-downscaled weather forecast and Kisan advisory for Gram Panchayats.">
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+
+  <!-- Google Identity Services (Client-Side) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Google Fonts: Inter & Noto Sans Devanagari -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet 1.9.4 CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+  <!-- Modular CSS Architecture -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+
+  <!-- Outer Desktop Wrapper: Centers Phone Frame on Larger Screens -->
+  <div class="desktop-canvas">
+    <div class="phone-viewport-frame">
+
+      <!-- Dynamic Sky Gradient Layer (Smooth 0.6s Fade) -->
+      <div id="sky-background" class="sky-background"></div>
+
+      <!-- Rain Particle Canvas (Lightweight Canvas Simulator) -->
+      <canvas id="rain-canvas" class="rain-canvas"></canvas>
+
+      <!-- Full-Screen Frosted Glass Login Screen -->
+      <div id="login-screen" class="login-screen">
+        <div class="login-card">
+          <div class="login-brand-icon">🌾</div>
+          <h1 class="login-title" data-i18n="login.title">GramMausam</h1>
+          <p class="login-tagline" data-i18n="login.tagline">Hyper-local Panchayat Weather & Kisan Advisory</p>
+          <div id="google-btn-container" class="google-btn-wrap"></div>
+          <a href="privacy.html" class="login-privacy-link" target="_blank" data-i18n="login.privacy">Privacy Policy</a>
+        </div>
+      </div>
+
+      <!-- First-Launch Language Selection Modal (Full-screen Frosted Glass) -->
+      <div id="first-launch-modal" class="first-launch-modal">
+        <div class="lang-modal-card">
+          <div class="lang-modal-icon">🌐</div>
+          <h2 class="lang-modal-title" data-i18n="lang_modal.title">Choose Language</h2>
+          <p class="lang-modal-subtitle" data-i18n="lang_modal.subtitle">Select your preferred language for the forecast</p>
+          <div class="lang-options-grid">
+            <button class="lang-choice-card" onclick="window.I18n && window.I18n.dismissFirstLaunch('en')">
+              <span class="lang-choice-badge">English</span>
+              <span class="lang-choice-sub">Continue in English</span>
+            </button>
+            <button class="lang-choice-card" onclick="window.I18n && window.I18n.dismissFirstLaunch('hi')">
+              <span class="lang-choice-badge font-devanagari">हिन्दी</span>
+              <span class="lang-choice-sub font-devanagari">हिन्दी में जारी रखें</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Scrollable App Viewport -->
+      <main class="app-content-viewport">
+
+        <!-- ===================================================================
+             SCREEN 1: HOME (#home)
+             =================================================================== -->
+        <div id="view-home" class="screen-view active">
+
+          <!-- Error Alert Banner (Shown if live fetch fails and no cache exists) -->
+          <div id="home-error-container" style="display: none;"></div>
+
+          <!-- 1 & 2. Location & Big Current Temperature -->
+          <section class="hero-section" id="hero-section-card">
+            <div id="location-trigger" class="location-title-wrap" data-i18n-title="home.location_prompt" title="Tap to select Gram Panchayat">
+              <h1 class="location-title" id="location-name-heading">Pathrai <span class="loc-dropdown-arrow">▼</span></h1>
+              <p class="location-subtitle" id="location-subtitle-text">Mainpat Block, Surguja • <span id="last-updated-text">Connecting...</span></p>
+            </div>
+            <div id="current-temp" class="hero-temp" title="Triple-tap for simulator">--°</div>
+            <div id="current-temp-uncertainty" class="temp-uncertainty-pill">--°C (--–--)</div>
+            <div id="current-condition" class="hero-condition" data-i18n="home.loading_weather">Loading weather...</div>
+            <div id="today-high-low" class="hero-high-low">H: --° • L: --°</div>
+          </section>
+
+          <!-- 3. Hourly Forecast Strip (12 Hours, Horizontally Scrollable) -->
+          <section class="weather-card" id="hourly-card">
+            <div class="card-header-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span data-i18n="home.hourly_title">Hourly Forecast (12 Hours)</span>
+            </div>
+            <div class="hourly-scroll-track" id="hourly-track">
+              <!-- Populated dynamically by app.js from Open-Meteo downscaled forecast -->
+            </div>
+          </section>
+
+          <!-- 4. 5-Day Forecast List with Range Bars -->
+          <section class="weather-card" id="daily-card">
+            <div class="card-header-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span data-i18n="home.daily_title">5-Day Forecast</span>
+            </div>
+            <div class="daily-forecast-list" id="daily-list">
+              <!-- Populated dynamically by app.js from Open-Meteo downscaled forecast -->
+            </div>
+          </section>
+
+          <!-- 5. Small Cards: Humidity, Wind, Chance of Rain, Rainfall (mm) -->
+          <div class="metrics-grid" id="metrics-grid-card">
+            <div class="weather-card metric-card">
+              <div class="metric-label-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+                <span data-i18n="metrics.humidity">Humidity</span>
+              </div>
+              <div class="metric-value" id="metric-humidity-val">--%</div>
+              <div class="metric-subtext" id="metric-humidity-sub" data-i18n="metrics.calculating_dew_point">Calculating dew point...</div>
+            </div>
+
+            <div class="weather-card metric-card">
+              <div class="metric-label-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg>
+                <span data-i18n="metrics.wind">Wind</span>
+              </div>
+              <div class="metric-value" id="metric-wind-val">-- <span style="font-size:16px;">km/h</span></div>
+              <div class="metric-subtext" id="metric-wind-sub">Mainpat weather station</div>
+            </div>
+
+            <div class="weather-card metric-card">
+              <div class="metric-label-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                <span data-i18n="metrics.chance_of_rain">Chance of rain</span>
+              </div>
+              <div class="metric-value" id="metric-rain-val">--%</div>
+              <div class="metric-subtext" id="metric-rain-sub" data-i18n="metrics.rain_sub">Today's max probability</div>
+            </div>
+
+            <div class="weather-card metric-card">
+              <div class="metric-label-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span data-i18n="metrics.rainfall">Rainfall</span>
+              </div>
+              <div class="metric-value" id="metric-precip-val">-- <span style="font-size:16px;">mm</span></div>
+              <div class="metric-subtext" id="metric-precip-sub" data-i18n="metrics.rainfall_sub">Today's precipitation sum</div>
+            </div>
+          </div>
+
+          <!-- 6. Special Card: Block vs Your Panchayat (REAL DOWNSCALING) -->
+          <section class="weather-card feature-card">
+            <div class="feature-badge" id="feature-badge-text" data-i18n="feature.badge">
+              Micro-local Difference
+            </div>
+            <div class="card-header-bar" style="margin-bottom: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg>
+              <span id="feature-header-text" style="font-size: 13px; color: #ffffff;" data-i18n="feature.header">Block vs Your Panchayat</span>
+            </div>
+
+            <div class="comparison-grid">
+              <div class="comp-col">
+                <div class="comp-label" data-i18n="feature.block_label">Block Forecast (Grid)</div>
+                <div class="comp-temp" id="comp-block-temp">--°</div>
+                <div class="comp-status" id="comp-grid-elev">Grid: 990 m MSL</div>
+              </div>
+              <div class="comp-divider">
+                <div class="diff-pill" id="comp-diff-pill">--° diff</div>
+              </div>
+              <div class="comp-col">
+                <div class="comp-label" id="comp-panchayat-name">Pathrai</div>
+                <div class="comp-temp" id="comp-panchayat-temp" style="color: #38bdf8;">--°</div>
+                <div class="comp-status" id="comp-panchayat-elev">Elevation: 1,099 m</div>
+              </div>
+            </div>
+
+            <div class="elevation-note" id="comp-elevation-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+              <span id="comp-elevation-text">Elevation: +109 m vs forecast grid average</span>
+            </div>
+            <p class="feature-explanation" id="comp-explanation-text" data-i18n="feature.loading_diff">
+              Loading local elevation difference...
+            </p>
+            <div class="card-block-forecast-note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              <span id="comp-rain-wind-note" data-i18n="feature.rain_wind_note">Rain, humidity and wind: block forecast</span>
+            </div>
+          </section>
+
+          <!-- 7. Farm Advice Card (REAL RULE-BASED, LINKS TO ADVICE TAB) -->
+          <section class="weather-card advice-card clickable-advice-card" id="home-advice-card" onclick="window.Router ? window.Router.navigateTo('advice') : location.hash='#advice'">
+            <div class="advice-badge" id="home-advice-badge" data-i18n="home_advice.badge">
+              Farm Advice
+            </div>
+            <div class="card-header-bar" style="color: var(--accent-green);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path></svg>
+              <span id="home-advice-title" data-i18n="home_advice.header">Agricultural Advisory</span>
+            </div>
+            <p class="advice-text" id="home-advice-text" data-i18n="home_advice.loading">
+              Loading weather-based farming advisory...
+            </p>
+            <div class="advice-read-more-link">
+              <span data-i18n="home_advice.view_all">View All 3-Day Advisories</span> →
+            </div>
+          </section>
+
+          <!-- Footer -->
+          <footer class="app-footer" id="app-footer-text" data-i18n="footer.text">
+            Weather data: Open-Meteo.com (CC BY 4.0) • Panchayat names: digitalchhattisgarh.com
+          </footer>
+
+        </div><!-- /#view-home -->
+
+        <!-- ===================================================================
+             SCREEN 2: MAP (#map)
+             =================================================================== -->
+        <div id="view-map" class="screen-view">
+          <div id="leaflet-map-container" class="leaflet-map-container google-map-container">
+            <!-- Rendered by Leaflet + OpenStreetMap engine -->
+          </div>
+        </div><!-- /#view-map -->
+
+        <!-- ===================================================================
+             SCREEN 3: ADVICE (#advice)
+             =================================================================== -->
+        <div id="view-advice" class="screen-view">
+          <header class="view-header">
+            <h2 class="view-title" id="advice-view-title" data-i18n="advice_screen.title">Farm Advice</h2>
+            <p class="view-subtitle" id="advice-header-subtitle">3-Day Agromet Advisory</p>
+          </header>
+
+          <div id="advice-list" class="advice-cards-container">
+            <!-- Rendered dynamically by Agromet advisory engine -->
+          </div>
+        </div><!-- /#view-advice -->
+
+        <!-- ===================================================================
+             SCREEN 4: PROFILE (#profile)
+             =================================================================== -->
+        <div id="view-profile" class="screen-view">
+          <header class="view-header">
+            <h2 class="view-title" data-i18n="profile.title">App Settings</h2>
+            <p class="view-subtitle" data-i18n="profile.subtitle">Preferences & Appearance</p>
+          </header>
+
+          <!-- User Account Card (Google Profile) -->
+          <section class="weather-card user-profile-card">
+            <div class="user-avatar-wrap">
+              <img id="profile-user-avatar" src="icon.svg" alt="User" class="user-profile-img">
+            </div>
+            <div class="user-info-wrap">
+              <h3 id="profile-user-name" class="user-profile-name">User</h3>
+              <p id="profile-user-email" class="user-profile-email">user@example.com</p>
+            </div>
+          </section>
+
+          <!-- Language Selector Card: iOS-Style Segmented Control -->
+          <section class="weather-card">
+            <div class="card-header-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              <span data-i18n="profile.language_title">Language</span>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;" data-i18n="profile.language_desc">
+              Select app language
+            </p>
+
+            <div class="segmented-control" id="language-segmented-control">
+              <button class="segmented-btn active" data-lang-btn="en">
+                <span>English</span>
+              </button>
+              <button class="segmented-btn" data-lang-btn="hi">
+                <span class="font-devanagari">हिन्दी</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Theme Selector Card: iOS-Style Segmented Control -->
+          <section class="weather-card">
+            <div class="card-header-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              <span data-i18n="profile.theme_title">Display Theme</span>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;" data-i18n="profile.theme_desc">
+              Choose between automatic, light, or dark display mode
+            </p>
+
+            <!-- Working Theme Selector (Auto / Light / Dark) -->
+            <div class="segmented-control">
+              <button class="segmented-btn active" data-theme-btn="auto">
+                <span id="theme-btn-auto-text">📱 Auto</span>
+              </button>
+              <button class="segmented-btn" data-theme-btn="light">
+                <span id="theme-btn-light-text">☀️ Light</span>
+              </button>
+              <button class="segmented-btn" data-theme-btn="dark">
+                <span id="theme-btn-dark-text">🌙 Dark</span>
+              </button>
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+              <span id="theme-help-auto" data-i18n="profile.theme_help_auto">• Auto: Matches your phone's dark mode setting.</span><br>
+              <span id="theme-help-light" data-i18n="profile.theme_help_light">• Light: Clean light theme with translucent blur.</span><br>
+              <span id="theme-help-dark" data-i18n="profile.theme_help_dark">• Dark: Dark theme with battery-saving matte.</span>
+            </div>
+          </section>
+
+          <!-- Application Details Card -->
+          <section class="weather-card">
+            <div class="card-header-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <span data-i18n="profile.app_details_title">Application Details</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label" data-i18n="profile.pilot_block_label">Active Pilot Block</span>
+              <span class="info-value" id="profile-pilot-block-val" data-i18n="profile.pilot_block_val">Mainpat Block</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label" data-i18n="profile.district_state_label">District & State</span>
+              <span class="info-value" id="profile-district-val" data-i18n="profile.district_state_val">Surguja, Chhattisgarh</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label" data-i18n="profile.covered_panchayats_label">Covered Panchayats</span>
+              <span class="info-value" id="profile-panchayats-val" data-i18n="profile.covered_panchayats_val">37 Gram Panchayats</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label" data-i18n="profile.engine_label">Forecast Engine</span>
+              <span class="info-value" id="profile-engine-val" data-i18n="profile.engine_val">Open-Meteo Live API (Raw Grid)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label" id="profile-lapse-label" data-i18n="profile.lapse_rate_label">Elevation correction (6.5 °C per 1,000 m)</span>
+              <span class="info-value" id="profile-lapse-val" data-i18n="profile.lapse_rate_val">Adiabatic Lapse Rate (-0.0065°C/m)</span>
+            </div>
+          </section>
+
+          <!-- Account Actions (Logout & Privacy) -->
+          <section class="profile-actions-card">
+            <button id="btn-logout" class="btn-logout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span data-i18n="profile.logout">Log Out</span>
+            </button>
+            <div class="profile-privacy-wrap">
+              <a href="privacy.html" class="profile-privacy-link" target="_blank" data-i18n="profile.privacy_link">Privacy Policy</a>
+            </div>
+          </section>
+        </div><!-- /#view-profile -->
+
+      </main><!-- /.app-content-viewport -->
+
+      <!-- Frosted Glass Panchayat Selection Bottom Sheet -->
+      <div id="sheet-backdrop" class="sheet-backdrop"></div>
+      <div id="panchayat-sheet" class="panchayat-sheet">
+        <div class="sheet-handle-bar">
+          <div class="sheet-drag-handle"></div>
+        </div>
+        <div class="sheet-header">
+          <div>
+            <h3 class="sheet-title" id="sheet-title-text" data-i18n="sheet.title">Select Gram Panchayat</h3>
+            <div class="sheet-subtitle" id="sheet-subtitle-text" data-i18n="sheet.subtitle">37 Pilot Places</div>
+          </div>
+          <button id="sheet-close-btn" class="sheet-close-btn" aria-label="Close">✕</button>
+        </div>
+
+        <div class="sheet-search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="panchayat-search-input" class="panchayat-search-input" data-i18n-placeholder="sheet.search_placeholder" placeholder="Search panchayat (e.g. Pathrai)..." autocomplete="off">
+        </div>
+
+        <button id="use-geolocation-btn" class="use-geolocation-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+          <span id="geo-btn-text" data-i18n="sheet.use_location">Use my location (Nearest Panchayat)</span>
+        </button>
+
+        <div id="panchayat-list" class="panchayat-list-scroll"></div>
+      </div>
+
+      <!-- 9. Bottom Navigation Bar with 4 Icons: Home, Map, Advice, Profile -->
+      <nav class="bottom-nav-bar">
+        <a href="#home" class="nav-item active" data-tab="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <a href="#map" class="nav-item" data-tab="map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          <span data-i18n="nav.map">Map</span>
+        </a>
+        <a href="#advice" class="nav-item" data-tab="advice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21h6"></path></svg>
+          <span data-i18n="nav.advice">Farm Advice</span>
+        </a>
+        <a href="#profile" class="nav-item" data-tab="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span data-i18n="nav.profile">Settings</span>
+        </a>
+      </nav>
+
+    </div><!-- /.phone-viewport-frame -->
+  </div><!-- /.desktop-canvas -->
+
+  <!-- JavaScript Modules -->
+  <script type="module" src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/weather-api.js"></script>
+  <script src="js/downscale.js"></script>
+  <script src="js/advice.js"></script>
+  <script src="js/panchayats.js"></script>
+  <!-- Leaflet 1.9.4 Mapping Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <!-- D3.js v7 for Isotherm Contours -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/sky.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

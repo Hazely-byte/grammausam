@@ -1,0 +1,571 @@
+/**
+ * SIH26074 - Panchayat-Level Weather App
+ * Layout, Phone Frame, Screen Transitions, and Navigation
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-stack);
+  background-color: #050811;
+  color: var(--text-primary);
+}
+
+/* Outer Desktop Canvas (Centers Phone Frame on Desktop) */
+.desktop-canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #151d30 0%, #060911 100%);
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* Centered Column Frame for Desktop Viewing */
+.phone-viewport-frame {
+  width: 100%;
+  max-width: 430px;
+  height: 92vh;
+  max-height: 900px;
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive: Native Full-Screen on Mobile Viewports */
+@media (max-width: 480px), (display-mode: standalone) {
+  .desktop-canvas {
+    padding: 0;
+    background: transparent;
+  }
+
+  .phone-viewport-frame {
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
+}
+
+/* Dynamic Sky Gradient Layer (Smooth 0.6s Transition) */
+.sky-background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, #1b62a5 0%, #297ec7 35%, #4ea3e3 70%, #7dbef2 100%);
+  transition: background var(--sky-transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Rain Particle Canvas */
+.rain-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--sky-transition-duration) ease;
+}
+
+/* ==========================================================================
+   Developer-Only Sky Control Panel (Outside Phone Frame)
+   Only enabled on localhost / 127.0.0.1 or ?dev=1
+   ========================================================================== */
+.dev-sky-panel {
+  position: fixed;
+  left: min(calc(50% + 320px), calc(100vw - 148px));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(13, 20, 36, 0.88);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 12px 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+  min-width: 124px;
+  color: #f1f5f9;
+}
+
+.dev-sky-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px 6px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dev-sky-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dev-sky-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(14, 165, 233, 0.2);
+  color: #38bdf8;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.dev-sky-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dev-sky-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+  text-align: left;
+}
+
+.dev-sky-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dev-sky-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+}
+
+.dev-sky-btn-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.dev-sky-btn-name {
+  flex-grow: 1;
+}
+
+.dev-sky-btn-kbd {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-family: inherit;
+}
+
+.dev-sky-btn.active .dev-sky-btn-kbd {
+  background: rgba(0, 0, 0, 0.25);
+  color: #e0f2fe;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Strictly hide dev panel on mobile or narrow screens so it NEVER appears inside phone frame */
+@media (max-width: 720px) {
+  .dev-sky-panel {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Screen Views & SPA Navigation Transitions
+   ========================================================================== */
+.app-content-viewport {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 18px 105px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.app-content-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.screen-view {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--screen-transition-duration) ease,
+              transform var(--screen-transition-duration) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screen-view.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Placeholder Screen Header (Map, Advice, Profile) */
+.view-header {
+  padding: 16px 8px 20px;
+  text-align: center;
+}
+
+.view-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.view-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   Bottom Navigation Bar
+   ========================================================================== */
+.bottom-nav-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 12px max(14px, env(safe-area-inset-bottom, 14px));
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: var(--nav-backdrop-filter);
+  backdrop-filter: var(--nav-backdrop-filter);
+  border-top: var(--nav-border);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--nav-text);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 12px;
+}
+
+.nav-item.active {
+  color: var(--nav-text-active);
+  background: var(--nav-item-active-bg);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+/* Subtle Toast Notification (e.g. for developer switcher) */
+.toast-notice {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.toast-notice.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Frosted Glass Panchayat Selection Bottom Sheet
+   ========================================================================== */
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sheet-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panchayat-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 84%;
+  z-index: 46;
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 12px 18px 24px;
+}
+
+.panchayat-sheet.open {
+  transform: translateY(0);
+}
+
+.sheet-handle-bar {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.sheet-drag-handle {
+  width: 38px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sheet-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sheet-subtitle {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.sheet-close-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.sheet-close-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.sheet-search-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.sheet-search-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.panchayat-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.panchayat-search-input:focus {
+  border-color: #38bdf8;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.panchayat-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.use-geolocation-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.45) 0%, rgba(59, 130, 246, 0.3) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.5);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.use-geolocation-btn:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.65) 0%, rgba(59, 130, 246, 0.45) 100%);
+  border-color: rgba(96, 165, 250, 0.8);
+}
+
+.panchayat-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 380px;
+  padding-right: 4px;
+}
+
+.panchayat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.panchayat-item:hover {
+  background: rgba(37, 99, 235, 0.22);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.panchayat-item.selected {
+  background: rgba(37, 99, 235, 0.32);
+  border-color: #38bdf8;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
+}
+
+.gp-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gp-names-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gp-name-en {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.gp-name-hi {
+  font-size: 12.5px;
+  color: #bae6fd;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.gp-meta-row {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.selected-checkmark {
+  font-size: 16px;
+  font-weight: 800;
+  color: #38bdf8;
+  padding-left: 8px;
+}
+
+.empty-search-state {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text-secondary);
+}
+

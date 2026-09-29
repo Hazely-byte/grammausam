@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b62a5" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="sun" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+  </defs>
+  <!-- App Background Badge -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  
+  <!-- Glowing Sun -->
+  <circle cx="340" cy="180" r="75" fill="url(#sun)" />
+  
+  <!-- Cloud -->
+  <path d="M160 360 h210 a60 60 0 0 0 10 -119 a85 85 0 0 0 -160 -25 a65 65 0 0 0 -60 64 a60 60 0 0 0 0 80 z" 
+        fill="#ffffff" 
+        opacity="0.95" />
+        
+  <!-- Sprout / Agriculture Leaf Accent -->
+  <path d="M256 340 c0 -40 25 -70 60 -70 c5 35 -15 65 -60 70 z" fill="#10b981" />
+  <path d="M256 340 c0 -35 -20 -60 -50 -60 c-5 30 15 55 50 60 z" fill="#34d399" />
+</svg>

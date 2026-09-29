@@ -1,0 +1,19 @@
+{
+  "name": "GramMausam",
+  "short_name": "GramMausam",
+  "description": "Hyper-local elevation-downscaled weather forecast and Kisan advisory for Gram Panchayats",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090e17",
+  "theme_color": "#1b62a5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
